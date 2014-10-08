@@ -1,5 +1,7 @@
-#include "tuple_map.hpp"
 #include <iostream>
+#include "tuple_map.hpp"
+#include "tuple_take.hpp"
+#include "tuple_drop.hpp"
 
 int main()
 {
@@ -22,6 +24,16 @@ int main()
   auto six_t = tuple_map([](int x, int y, int z){return x + y + z;}, one_t, two_t, three_t);
 
   std::cout << "six_t: " << std::get<0>(six_t) << ", " << std::get<1>(six_t) << ", " << std::get<2>(six_t) << std::endl;
+
+  // take the first 2 elements of six_t:
+  auto six_t_first_two = tuple_take<2>(six_t);
+
+  std::cout << "six_t_first_two: " << std::get<0>(six_t_first_two) << ", " << std::get<1>(six_t_first_two) << std::endl;
+
+  // drop the last 2 elements of t:
+  auto t_drop_2 = tuple_drop<2>(t);
+
+  std::cout << "t_drop_2: " << std::get<0>(t_drop_2) << ", " << std::get<1>(t_drop_2) << std::endl;
 
   return 0;
 }
