@@ -9,7 +9,7 @@ template<class Tuple, class T>
 typename std::enable_if<
   std::tuple_size<Tuple>::value == 0
 >::type
-tuple_print(std::ostream&, const Tuple& t, const T&)
+tuple_print(const Tuple& t, std::ostream& os, const T&)
 {
 }
 
@@ -17,7 +17,7 @@ template<class Tuple, class T>
 typename std::enable_if<
   std::tuple_size<Tuple>::value == 1
 >::type
-tuple_print(std::ostream& os, const Tuple& t, const T&)
+tuple_print(const Tuple& t, std::ostream& os, const T&)
 {
   os << std::get<0>(t);
 }
@@ -26,16 +26,16 @@ template<class Tuple, class T>
 typename std::enable_if<
   (std::tuple_size<Tuple>::value > 1)
 >::type
-  tuple_print(std::ostream& os, const Tuple& t, const T& delimiter)
+  tuple_print(const Tuple& t, std::ostream& os, const T& delimiter)
 {
   os << tuple_head(t) << delimiter;
 
-  tuple_print(os, tuple_tail(t), delimiter);
+  tuple_print(tuple_tail(t), os, delimiter);
 }
 
 template<class Tuple>
-void tuple_print(std::ostream& os, const Tuple& t)
+void tuple_print(const Tuple& t, std::ostream& os = std::cout)
 {
-  tuple_print(os, t, ", ");
+  tuple_print(t, os, ", ");
 }
 
