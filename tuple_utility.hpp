@@ -275,19 +275,13 @@ T tuple_reduce(Tuple&&, T init, Function)
   return init;
 }
 
-template<class Tuple, class T, class Function,
-         class = typename std::enable_if<
-           (std::tuple_size<
-             typename std::decay<Tuple>::type
-           >::value > 0)
-         >::type>
-auto tuple_reduce(Tuple&& t, T init, Function f)
-  -> decltype(
-       f(
-         tuple_head(std::forward<Tuple>(t)),
-         tuple_reduce(tuple_tail(std::forward<Tuple>(t)), init, f)
-       )
-     )
+template<class Tuple, class T, class Function>
+T tuple_reduce(Tuple&& t, T init, Function f,
+               typename std::enable_if<
+                 (std::tuple_size<
+                   typename std::decay<Tuple>::type
+                 >::value > 0)
+               >::type* = 0)
 {
   return f(
     tuple_head(std::forward<Tuple>(t)),
