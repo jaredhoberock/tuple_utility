@@ -3,7 +3,6 @@
 #include <tuple>
 #include <utility>
 #include <type_traits>
-#include <integer_sequence>
 #include <iostream>
 
 // allow the user to define a namespace for these functions
@@ -11,6 +10,40 @@
 namespace TUPLE_UTILITY_NAMESPACE
 {
 #endif // TUPLE_UTILITY_NAMESPACE
+
+
+template<class T>
+using __decay_t = typename std::decay<T>::type;
+
+
+// define index sequence in case it is missing
+template<size_t... I> struct __index_sequence {};
+
+template<size_t Start, typename Indices, size_t End>
+struct __make_index_sequence_impl;
+
+template<size_t Start, size_t... Indices, size_t End>
+struct __make_index_sequence_impl<
+  Start,
+  __index_sequence<Indices...>, 
+  End
+>
+{
+  typedef typename __make_index_sequence_impl<
+    Start + 1,
+    __index_sequence<Indices..., Start>,
+    End
+  >::type type;
+};
+
+template<size_t End, size_t... Indices>
+struct __make_index_sequence_impl<End, __index_sequence<Indices...>, End>
+{
+  typedef __index_sequence<Indices...> type;
+};
+
+template<size_t N>
+using __make_index_sequence = typename __make_index_sequence_impl<0, __index_sequence<>, N>::type;
 
 
 template<class Tuple>
@@ -33,7 +66,7 @@ auto __tuple_tail_impl_impl(Args&&... args)
 }
 
 template<class Tuple, size_t... I>
-auto __tuple_tail_impl(Tuple&& t, std::index_sequence<I...>)
+auto __tuple_tail_impl(Tuple&& t, __index_sequence<I...>)
   -> decltype(
        __tuple_tail_impl_impl(std::get<I>(std::forward<Tuple>(t))...)
      )
@@ -46,7 +79,7 @@ auto tuple_tail(Tuple&& t)
   -> decltype(
        __tuple_tail_impl(
          std::forward<Tuple>(t),
-         std::make_index_sequence<
+         __make_index_sequence<
            std::tuple_size<
              typename std::decay<Tuple>::type
            >::value - 1
@@ -54,7 +87,7 @@ auto tuple_tail(Tuple&& t)
        )
      )
 {
-  using indices = std::make_index_sequence<
+  using indices = __make_index_sequence<
     std::tuple_size<
       typename std::decay<Tuple>::type
     >::value - 1
@@ -64,7 +97,7 @@ auto tuple_tail(Tuple&& t)
 
 
 template<size_t... I, class Tuple>
-auto __tuple_take_impl(Tuple&& t, std::index_sequence<I...>)
+auto __tuple_take_impl(Tuple&& t, __index_sequence<I...>)
   -> decltype(
        std::tie(
          std::get<I>(std::forward<Tuple>(t))...
@@ -77,10 +110,10 @@ auto __tuple_take_impl(Tuple&& t, std::index_sequence<I...>)
 template<size_t N, class Tuple>
 auto tuple_take(Tuple&& t)
   -> decltype(
-       __tuple_take_impl(std::forward<Tuple>(t), std::make_index_sequence<N>())
+       __tuple_take_impl(std::forward<Tuple>(t), __make_index_sequence<N>())
      )
 {
-  return __tuple_take_impl(std::forward<Tuple>(t), std::make_index_sequence<N>());
+  return __tuple_take_impl(std::forward<Tuple>(t), __make_index_sequence<N>());
 }
 
 
@@ -119,7 +152,7 @@ auto tuple_last(Tuple&& t)
 
 
 template<class Tuple, class T, size_t... I>
-auto __tuple_append_impl(Tuple&& t, T&& x, std::index_sequence<I...>)
+auto __tuple_append_impl(Tuple&& t, T&& x, __index_sequence<I...>)
   -> decltype(
        std::make_tuple(std::get<I>(std::forward<Tuple>(t))..., std::forward<T>(x))
      )
@@ -133,7 +166,7 @@ auto tuple_append(Tuple&& t, T&& x)
        __tuple_append_impl(
          std::forward<Tuple>(t),
          std::forward<T>(x),
-         std::make_index_sequence<
+         __make_index_sequence<
            std::tuple_size<
              typename std::decay<Tuple>::type
            >::value
@@ -141,7 +174,7 @@ auto tuple_append(Tuple&& t, T&& x)
        )
      )
 {
-  using indices = std::make_index_sequence<
+  using indices = __make_index_sequence<
     std::tuple_size<typename std::decay<Tuple>::type>::value
   >;
   return __tuple_append_impl(std::forward<Tuple>(t), std::forward<T>(x), indices());
@@ -159,7 +192,7 @@ auto __tuple_map_invoke(Function f, Tuples&&... ts)
 }
 
 template<size_t... I, typename Function1, typename Function2, typename... Tuples>
-auto __tuple_map_with_make_impl(std::index_sequence<I...>, Function1 f, Function2 make, Tuples&&... ts)
+auto __tuple_map_with_make_impl(__index_sequence<I...>, Function1 f, Function2 make, Tuples&&... ts)
   -> decltype(
        make(
          __tuple_map_invoke<I>(f, std::forward<Tuples>(ts)...)...
@@ -175,8 +208,8 @@ template<typename Function1, typename Function2, typename Tuple, typename... Tup
 auto tuple_map_with_make(Function1 f, Function2 make, Tuple&& t, Tuples&&... ts)
   -> decltype(
        __tuple_map_with_make_impl(
-         std::make_index_sequence<
-           std::tuple_size<std::decay_t<Tuple>>::value
+         __make_index_sequence<
+           std::tuple_size<__decay_t<Tuple>>::value
          >(),
          f,
          make,
@@ -186,8 +219,8 @@ auto tuple_map_with_make(Function1 f, Function2 make, Tuple&& t, Tuples&&... ts)
      )
 {
   return __tuple_map_with_make_impl(
-    std::make_index_sequence<
-      std::tuple_size<std::decay_t<Tuple>>::value
+    __make_index_sequence<
+      std::tuple_size<__decay_t<Tuple>>::value
     >(),
     f,
     make,
@@ -219,7 +252,7 @@ auto tuple_map(Function f, Tuple&& t, Tuples&&... ts)
 
 
 template<class T, class Tuple, size_t... I>
-T make_from_tuple_impl(const Tuple& t, std::index_sequence<I...>)
+T make_from_tuple_impl(const Tuple& t, __index_sequence<I...>)
 {
   return T{std::get<I>(t)...};
 }
@@ -227,7 +260,7 @@ T make_from_tuple_impl(const Tuple& t, std::index_sequence<I...>)
 template<class T, class Tuple>
 T make_from_tuple(const Tuple& t)
 {
-  return make_from_tuple_impl<T>(t, std::make_index_sequence<std::tuple_size<Tuple>::value>());
+  return make_from_tuple_impl<T>(t, __make_index_sequence<std::tuple_size<Tuple>::value>());
 }
 
 
