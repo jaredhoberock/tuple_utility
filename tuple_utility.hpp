@@ -290,6 +290,27 @@ T tuple_reduce(Tuple&& t, T init, Function f,
 }
 
 
+template<class Tuple, class Function>
+typename std::enable_if<
+  (std::tuple_size<__decay_t<Tuple>>::value == 0)
+>::type
+  tuple_for_each(Tuple&& t, Function f)
+{
+  ;
+}
+
+
+template<class Tuple, class Function>
+typename std::enable_if<
+  (std::tuple_size<__decay_t<Tuple>>::value > 0)
+>::type
+  tuple_for_each(Tuple&& t, Function f)
+{
+  f(tuple_head(std::forward<Tuple>(t)));
+  tuple_for_each(tuple_tail(std::forward<Tuple>(t)), f);
+}
+
+
 template<class Tuple, class T>
 typename std::enable_if<
   std::tuple_size<Tuple>::value == 0

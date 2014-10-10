@@ -95,7 +95,7 @@ Utilities for C++ tuples.
 
 `tuple_reduce`:
 
-    #include "tuple_reduce.hpp"
+    #include "tuple_utility.hpp"
 
     int main()
     {
@@ -107,5 +107,20 @@ Utilities for C++ tuples.
       // prints 6
 
       return 0;
+    }
+
+`tuple_for_each`:
+
+    #include "tuple_utility.hpp"
+
+    int main()
+    {
+      auto t = std::make_tuple(0, 1, 2, 3);
+
+      auto sum = tuple_for_each(t, [](int& x){ ++x; });
+
+      tuple_print(t);
+
+      // prints 1, 2, 3, 4
     }
 
