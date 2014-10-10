@@ -93,3 +93,19 @@ Utilities for C++ tuples.
       return 0;
     }
 
+`tuple_reduce`:
+
+    #include "tuple_reduce.hpp"
+
+    int main()
+    {
+      auto t = std::make_tuple(0, 1, 2, 3);
+
+      auto sum = tuple_reduce(t, 0, [](int x, int y){return x + y;});
+
+      std::cout << "sum of t's elements is " << sum << std::endl;
+      // prints 6
+
+      return 0;
+    }
+

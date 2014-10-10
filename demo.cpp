@@ -58,6 +58,12 @@ int main()
   tuple_print(t10);
   std::cout << std::endl;
 
+  // reduce a tuple
+  auto t11 = std::make_tuple(0, 1, 2, 3);
+  auto reduce_t11 = tuple_reduce(t11, 0, [](int x, int y){return x + y;});
+  std::cout << "reduce_t11: " << reduce_t11 << std::endl;
+  
+
   return 0;
 }
 

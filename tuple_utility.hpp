@@ -7,6 +7,7 @@
 #include "tuple_last.hpp"
 #include "tuple_map.hpp"
 #include "tuple_print.hpp"
+#include "tuple_reduce.hpp"
 #include "tuple_tail.hpp"
 #include "tuple_take.hpp"
 
