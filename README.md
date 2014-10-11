@@ -120,7 +120,29 @@ Utilities for C++ tuples.
       auto sum = tuple_for_each(t, [](int& x){ ++x; });
 
       tuple_print(t);
-
       // prints 1, 2, 3, 4
+
+      return 0;
+    }
+
+`tuple_lexicographical_compare`:
+
+    #include "tuple_utility.hpp"
+
+    int main()
+    {
+      auto t1 = std::make_tuple(0, 1, 2);
+      auto t2 = std::make_tuple(3, 4);
+
+      std::cout << "t1 is less than t2: " << tuple_lexicographical_compare(t1, t2) << std::endl;
+      // prints 1
+
+      auto t3 = std::make_tuple(5, 6, 7);
+      auto t4 = std::make_tuple(0, 1, 2, 3, 4);
+
+      std::cout << "t3 is less than t4: " << tuple_lexicographical_compare(t3, t4) << std::endl;
+      // prints 0
+
+      return 0;
     }
 

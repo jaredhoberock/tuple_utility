@@ -70,6 +70,14 @@ int main()
   tuple_print(t12);
   std::cout << std::endl;
 
+  auto t13 = std::make_tuple(0, 1);
+  auto t14 = std::make_tuple(2, 3, 4);
+
+  std::cout << "t13 less than t14: " << tuple_lexicographical_compare(t13, t14) << std::endl;
+  std::cout << "empty less than t13: " << tuple_lexicographical_compare(empty, t13) << std::endl;
+  std::cout << "empty less empty: " << tuple_lexicographical_compare(empty, empty) << std::endl;
+  std::cout << "t14 less than t12: " << tuple_lexicographical_compare(t14, t12) << std::endl;
+
   return 0;
 }
 

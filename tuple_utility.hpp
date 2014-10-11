@@ -346,6 +346,39 @@ void tuple_print(const Tuple& t, std::ostream& os = std::cout)
 }
 
 
+template<class Tuple1, class Tuple2>
+typename std::enable_if<
+  std::tuple_size<Tuple2>::value == 0,
+  bool
+>::type
+  tuple_lexicographical_compare(const Tuple1&, const Tuple2&)
+{
+  return false;
+}
+
+template<class Tuple1, class Tuple2>
+typename std::enable_if<
+  (std::tuple_size<Tuple1>::value == 0 && std::tuple_size<Tuple2>::value > 0),
+  bool
+>::type
+  tuple_lexicographical_compare(const Tuple1& t1, const Tuple2& t2)
+{
+  return true;
+}
+
+template<class Tuple1, class Tuple2>
+typename std::enable_if<
+  (std::tuple_size<Tuple1>::value > 0 && std::tuple_size<Tuple2>::value > 0),
+  bool
+>::type
+  tuple_lexicographical_compare(const Tuple1& t1, const Tuple2& t2)
+{
+  return (tuple_head(t1) < tuple_head(t2)) ? true :
+         (tuple_head(t2) < tuple_head(t1)) ? false :
+         tuple_lexicographical_compare(tuple_tail(t1), tuple_tail(t2));
+}
+
+
 #ifdef TUPLE_UTILITY_NAMESPACE
 } // close namespace
 #endif // TUPLE_UTILITY_NAMESPACE
