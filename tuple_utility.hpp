@@ -229,7 +229,7 @@ auto tuple_map_with_make(Function1 f, Function2 make, Tuple&& t, Tuples&&... ts)
   );
 }
 
-struct __tuple_maker
+struct __std_tuple_maker
 {
   template<class... T>
   auto operator()(T&&... args)
@@ -244,10 +244,10 @@ struct __tuple_maker
 template<typename Function, typename Tuple, typename... Tuples>
 auto tuple_map(Function f, Tuple&& t, Tuples&&... ts)
   -> decltype(
-       tuple_map_with_make(f, __tuple_maker(), std::forward<Tuple>(t), std::forward<Tuples>(ts)...)
+       tuple_map_with_make(f, __std_tuple_maker(), std::forward<Tuple>(t), std::forward<Tuples>(ts)...)
      )
 {
-  return tuple_map_with_make(f, __tuple_maker(), std::forward<Tuple>(t), std::forward<Tuples>(ts)...);
+  return tuple_map_with_make(f, __std_tuple_maker(), std::forward<Tuple>(t), std::forward<Tuples>(ts)...);
 }
 
 
@@ -376,6 +376,26 @@ typename std::enable_if<
   return (tuple_head(t1) < tuple_head(t2)) ? true :
          (tuple_head(t2) < tuple_head(t1)) ? false :
          tuple_lexicographical_compare(tuple_tail(t1), tuple_tail(t2));
+}
+
+
+template<class Function, class... StdTuples>
+auto tuple_cat_with_make_impl(Function make, StdTuples&&... tuples)
+  -> decltype(
+       make(std::tuple_cat(std::forward<StdTuples>(tuples)...)
+     )
+{
+  return make(std::tuple_cat(std::forward<StdTuples>(tuples)...));
+}
+
+
+template<class Function, class... Tuples>
+auto tuple_cat_with_make(Function make, Tuples&&... tuples)
+  -> decltype(
+       tuple_cat_with_make_impl(make, __std_tuple_maker{}(std::forward<Tuples>(tuples))...)
+     )
+{
+  return tuple_cat_with_make_impl(make, __std_tuple_maker{}(std::forward<Tuples>(tuples))...);
 }
 
 
