@@ -379,23 +379,51 @@ typename std::enable_if<
 }
 
 
-template<class Function, class... StdTuples>
-auto tuple_cat_with_make_impl(Function make, StdTuples&&... tuples)
+template<class Function, class Tuple, size_t... I>
+auto __tuple_apply_impl(Function f, Tuple&& t, __index_sequence<I...>)
   -> decltype(
-       make(std::tuple_cat(std::forward<StdTuples>(tuples)...)
+       f(std::get<I>(std::forward<Tuple>(t))...)
      )
 {
-  return make(std::tuple_cat(std::forward<StdTuples>(tuples)...));
+  return f(std::get<I>(std::forward<Tuple>(t))...);
+}
+
+
+
+template<class Function, class Tuple>
+auto tuple_apply(Function f, Tuple&& t)
+  -> decltype(
+       __tuple_apply_impl(
+         f,
+         std::forward<Tuple>(t),
+         __make_index_sequence<std::tuple_size<__decay_t<Tuple>>::value>()
+       )
+     )
+{
+  using indices = __make_index_sequence<std::tuple_size<__decay_t<Tuple>>::value>;
+  return __tuple_apply_impl(f, std::forward<Tuple>(t), indices());
+}
+
+
+template<class Function, class... StdTuples>
+auto __tuple_cat_apply_impl(Function f, StdTuples&&... tuples)
+  -> decltype(
+       tuple_apply(f, std::tuple_cat(std::forward<StdTuples>(tuples)...))
+     )
+{
+  return tuple_apply(f, std::tuple_cat(std::forward<StdTuples>(tuples)...));
 }
 
 
 template<class Function, class... Tuples>
-auto tuple_cat_with_make(Function make, Tuples&&... tuples)
+auto tuple_cat_apply(Function f, Tuples&&... tuples)
   -> decltype(
-       tuple_cat_with_make_impl(make, __std_tuple_maker{}(std::forward<Tuples>(tuples))...)
+       __tuple_cat_apply_impl(f, tuple_apply(__std_tuple_maker{}, std::forward<Tuples>(tuples))...)
      )
 {
-  return tuple_cat_with_make_impl(make, __std_tuple_maker{}(std::forward<Tuples>(tuples))...);
+  // transform each tuple into a std::tuple with tuple_apply
+  // then call __tuple_cat_apply_impl
+  return __tuple_cat_apply_impl(f, tuple_apply(__std_tuple_maker{}, std::forward<Tuples>(tuples))...);
 }
 
 
