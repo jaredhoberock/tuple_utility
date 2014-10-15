@@ -99,12 +99,12 @@ auto tuple_tail(Tuple&& t)
 template<size_t... I, class Tuple>
 auto __tuple_take_impl(Tuple&& t, __index_sequence<I...>)
   -> decltype(
-       std::tie(
+       std::make_tuple(
          std::get<I>(std::forward<Tuple>(t))...
        )
      )
 {
-  return std::tie(std::get<I>(std::forward<Tuple>(t))...);
+  return std::make_tuple(std::get<I>(std::forward<Tuple>(t))...);
 }
 
 template<size_t N, class Tuple>
