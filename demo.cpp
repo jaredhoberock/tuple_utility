@@ -78,6 +78,11 @@ int main()
   std::cout << "empty less empty: " << tuple_lexicographical_compare(empty, empty) << std::endl;
   std::cout << "t14 less than t12: " << tuple_lexicographical_compare(t14, t12) << std::endl;
 
+  // zip two tuples together
+  auto t15 = std::make_tuple(0, 1);
+  auto t16 = std::make_tuple(2, 3);
+  auto t17 = tuple_zip(t15,t16);
+
   return 0;
 }
 

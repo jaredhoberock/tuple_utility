@@ -427,7 +427,18 @@ auto tuple_cat_apply(Function f, Tuples&&... tuples)
 }
 
 
+template<class... Tuples>
+auto tuple_zip(Tuples&&... tuples)
+  -> decltype(
+       tuple_map(__std_tuple_maker{}, std::forward<Tuples>(tuples)...)
+     )
+{
+  return tuple_map(__std_tuple_maker{}, std::forward<Tuples>(tuples)...);
+}
+
+
 #ifdef TUPLE_UTILITY_NAMESPACE
 } // close namespace
 #endif // TUPLE_UTILITY_NAMESPACE
+
 
