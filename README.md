@@ -117,7 +117,7 @@ Utilities for C++ tuples.
     {
       auto t = std::make_tuple(0, 1, 2, 3);
 
-      auto sum = tuple_for_each(t, [](int& x){ ++x; });
+      auto sum = tuple_for_each([](int& x){ ++x; }, t);
 
       tuple_print(t);
       // prints 1, 2, 3, 4

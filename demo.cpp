@@ -65,7 +65,7 @@ int main()
   
   // increment each element of a tuple
   auto t12 = std::make_tuple(0, 1, 2, 3);
-  tuple_for_each(t12, [](int &x){ ++x; });
+  tuple_for_each([](int &x){ ++x; }, t12);
   std::cout << "t12: ";
   tuple_print(t12);
   std::cout << std::endl;
