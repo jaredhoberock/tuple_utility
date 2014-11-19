@@ -5,6 +5,17 @@
 #include <type_traits>
 #include <iostream>
 
+// allow the user to define an annotation to apply to these functions
+// by default, it attempts to be constexpr
+#ifndef TUPLE_UTILITY_ANNOTATION
+#  if __cplusplus <= 201103L
+#    define TUPLE_UTILITY_ANNOTATION
+#  else
+#    define TUPLE_UTILITY_ANNOTATION constexpr
+#  endif
+#  define TUPLE_UTILITY_ANNOTATION_NEEDS_UNDEF
+#endif
+
 // allow the user to define a namespace for these functions
 #ifdef TUPLE_UTILITY_NAMESPACE
 namespace TUPLE_UTILITY_NAMESPACE
@@ -47,6 +58,7 @@ using __make_index_sequence = typename __make_index_sequence_impl<0, __index_seq
 
 
 template<class Tuple>
+TUPLE_UTILITY_ANNOTATION
 auto tuple_head(Tuple&& t)
   -> decltype(
        std::get<0>(std::forward<Tuple>(t))
@@ -57,6 +69,7 @@ auto tuple_head(Tuple&& t)
 
 
 template<class... Args>
+TUPLE_UTILITY_ANNOTATION
 auto __forward_tuple_tail_impl_impl(Args&&... args)
   -> decltype(
        std::forward_as_tuple(args...)
@@ -66,6 +79,7 @@ auto __forward_tuple_tail_impl_impl(Args&&... args)
 }
 
 template<class Tuple, size_t... I>
+TUPLE_UTILITY_ANNOTATION
 auto __forward_tuple_tail_impl(Tuple&& t, __index_sequence<I...>)
   -> decltype(
        __forward_tuple_tail_impl_impl(std::get<I+1>(std::forward<Tuple>(t))...)
@@ -77,6 +91,7 @@ auto __forward_tuple_tail_impl(Tuple&& t, __index_sequence<I...>)
 
 // forward_tuple_tail() returns t's tail as a tuple of references
 template<class Tuple>
+TUPLE_UTILITY_ANNOTATION
 auto forward_tuple_tail(typename std::remove_reference<Tuple>::type& t)
   -> decltype(
        __forward_tuple_tail_impl(
@@ -99,6 +114,7 @@ auto forward_tuple_tail(typename std::remove_reference<Tuple>::type& t)
 
 
 template<class... Args>
+TUPLE_UTILITY_ANNOTATION
 auto __tuple_tail_impl_impl(Args&&... args)
   -> decltype(
        std::make_tuple(args...)
@@ -108,6 +124,7 @@ auto __tuple_tail_impl_impl(Args&&... args)
 }
 
 template<class Tuple, size_t... I>
+TUPLE_UTILITY_ANNOTATION
 auto __tuple_tail_impl(Tuple&& t, __index_sequence<I...>)
   -> decltype(
        __tuple_tail_impl_impl(std::get<I+1>(std::forward<Tuple>(t))...)
@@ -120,6 +137,7 @@ auto __tuple_tail_impl(Tuple&& t, __index_sequence<I...>)
 // tuple_tail() returns t's tail as a tuple of values
 // i.e., it makes a copy of t's tail
 template<class Tuple>
+TUPLE_UTILITY_ANNOTATION
 auto tuple_tail(Tuple&& t)
   -> decltype(
        __tuple_tail_impl(
@@ -142,6 +160,7 @@ auto tuple_tail(Tuple&& t)
 
 
 template<size_t... I, class Tuple>
+TUPLE_UTILITY_ANNOTATION
 auto __tuple_take_impl(Tuple&& t, __index_sequence<I...>)
   -> decltype(
        std::make_tuple(
@@ -152,7 +171,9 @@ auto __tuple_take_impl(Tuple&& t, __index_sequence<I...>)
   return std::make_tuple(std::get<I>(std::forward<Tuple>(t))...);
 }
 
+
 template<size_t N, class Tuple>
+TUPLE_UTILITY_ANNOTATION
 auto tuple_take(Tuple&& t)
   -> decltype(
        __tuple_take_impl(std::forward<Tuple>(t), __make_index_sequence<N>())
@@ -163,6 +184,7 @@ auto tuple_take(Tuple&& t)
 
 
 template<size_t N, class Tuple>
+TUPLE_UTILITY_ANNOTATION
 auto tuple_drop(Tuple&& t)
   -> decltype(
        tuple_take<std::tuple_size<typename std::decay<Tuple>::type>::value - N>(std::forward<Tuple>(t))
@@ -171,7 +193,9 @@ auto tuple_drop(Tuple&& t)
   return tuple_take<std::tuple_size<typename std::decay<Tuple>::type>::value - N>(std::forward<Tuple>(t));
 }
 
+
 template<class Tuple>
+TUPLE_UTILITY_ANNOTATION
 auto tuple_drop_last(Tuple&& t)
   -> decltype(
        tuple_drop<1>(std::forward<Tuple>(t))
@@ -182,6 +206,7 @@ auto tuple_drop_last(Tuple&& t)
 
 
 template<class Tuple>
+TUPLE_UTILITY_ANNOTATION
 auto tuple_last(Tuple&& t)
   -> decltype(
        std::get<
@@ -197,6 +222,7 @@ auto tuple_last(Tuple&& t)
 
 
 template<class Tuple, class T, size_t... I>
+TUPLE_UTILITY_ANNOTATION
 auto __tuple_append_impl(Tuple&& t, T&& x, __index_sequence<I...>)
   -> decltype(
        std::make_tuple(std::get<I>(std::forward<Tuple>(t))..., std::forward<T>(x))
@@ -205,7 +231,9 @@ auto __tuple_append_impl(Tuple&& t, T&& x, __index_sequence<I...>)
   return std::make_tuple(std::get<I>(std::forward<Tuple>(t))..., std::forward<T>(x));
 }
 
+
 template<class Tuple, class T>
+TUPLE_UTILITY_ANNOTATION
 auto tuple_append(Tuple&& t, T&& x)
   -> decltype(
        __tuple_append_impl(
@@ -228,6 +256,7 @@ auto tuple_append(Tuple&& t, T&& x)
 
 
 template<size_t I, typename Function, typename... Tuples>
+TUPLE_UTILITY_ANNOTATION
 auto __tuple_map_invoke(Function f, Tuples&&... ts)
   -> decltype(
        f(std::get<I>(std::forward<Tuples>(ts))...)
@@ -236,7 +265,9 @@ auto __tuple_map_invoke(Function f, Tuples&&... ts)
   return f(std::get<I>(std::forward<Tuples>(ts))...);
 }
 
+
 template<size_t... I, typename Function1, typename Function2, typename... Tuples>
+TUPLE_UTILITY_ANNOTATION
 auto __tuple_map_with_make_impl(__index_sequence<I...>, Function1 f, Function2 make, Tuples&&... ts)
   -> decltype(
        make(
@@ -249,7 +280,9 @@ auto __tuple_map_with_make_impl(__index_sequence<I...>, Function1 f, Function2 m
   );
 }
 
+
 template<typename Function1, typename Function2, typename Tuple, typename... Tuples>
+TUPLE_UTILITY_ANNOTATION
 auto tuple_map_with_make(Function1 f, Function2 make, Tuple&& t, Tuples&&... ts)
   -> decltype(
        __tuple_map_with_make_impl(
@@ -274,9 +307,11 @@ auto tuple_map_with_make(Function1 f, Function2 make, Tuple&& t, Tuples&&... ts)
   );
 }
 
+
 struct __std_tuple_maker
 {
   template<class... T>
+  TUPLE_UTILITY_ANNOTATION
   auto operator()(T&&... args)
     -> decltype(
          std::make_tuple(std::forward<T>(args)...)
@@ -286,7 +321,9 @@ struct __std_tuple_maker
   }
 };
 
+
 template<typename Function, typename Tuple, typename... Tuples>
+TUPLE_UTILITY_ANNOTATION
 auto tuple_map(Function f, Tuple&& t, Tuples&&... ts)
   -> decltype(
        tuple_map_with_make(f, __std_tuple_maker(), std::forward<Tuple>(t), std::forward<Tuples>(ts)...)
@@ -297,12 +334,15 @@ auto tuple_map(Function f, Tuple&& t, Tuples&&... ts)
 
 
 template<class T, class Tuple, size_t... I>
+TUPLE_UTILITY_ANNOTATION
 T make_from_tuple_impl(const Tuple& t, __index_sequence<I...>)
 {
   return T{std::get<I>(t)...};
 }
 
+
 template<class T, class Tuple>
+TUPLE_UTILITY_ANNOTATION
 T make_from_tuple(const Tuple& t)
 {
   return make_from_tuple_impl<T>(t, __make_index_sequence<std::tuple_size<Tuple>::value>());
@@ -315,12 +355,15 @@ template<class Tuple, class T, class Function,
              typename std::decay<Tuple>::type
            >::value == 0)
          >::type>
+TUPLE_UTILITY_ANNOTATION
 T tuple_reduce(Tuple&&, T init, Function)
 {
   return init;
 }
 
+
 template<class Tuple, class T, class Function>
+TUPLE_UTILITY_ANNOTATION
 T tuple_reduce(Tuple&& t, T init, Function f,
                typename std::enable_if<
                  (std::tuple_size<
@@ -336,6 +379,7 @@ T tuple_reduce(Tuple&& t, T init, Function f,
 
 
 template<class Function, class Tuple1, class... Tuples>
+TUPLE_UTILITY_ANNOTATION
 typename std::enable_if<
   (std::tuple_size<__decay_t<Tuple1>>::value == 0)
 >::type
@@ -346,6 +390,7 @@ typename std::enable_if<
 
 
 template<class Function, class Tuple1, class... Tuples>
+TUPLE_UTILITY_ANNOTATION
 typename std::enable_if<
   (std::tuple_size<__decay_t<Tuple1>>::value > 0)
 >::type
@@ -364,6 +409,7 @@ tuple_print(const Tuple& t, std::ostream& os, const T&)
 {
 }
 
+
 template<class Tuple, class T>
 typename std::enable_if<
   std::tuple_size<Tuple>::value == 1
@@ -372,6 +418,7 @@ tuple_print(const Tuple& t, std::ostream& os, const T&)
 {
   os << std::get<0>(t);
 }
+
 
 template<class Tuple, class T>
 typename std::enable_if<
@@ -392,6 +439,7 @@ void tuple_print(const Tuple& t, std::ostream& os = std::cout)
 
 
 template<class Tuple1, class Tuple2>
+TUPLE_UTILITY_ANNOTATION
 typename std::enable_if<
   std::tuple_size<Tuple2>::value == 0,
   bool
@@ -401,7 +449,9 @@ typename std::enable_if<
   return false;
 }
 
+
 template<class Tuple1, class Tuple2>
+TUPLE_UTILITY_ANNOTATION
 typename std::enable_if<
   (std::tuple_size<Tuple1>::value == 0 && std::tuple_size<Tuple2>::value > 0),
   bool
@@ -411,7 +461,9 @@ typename std::enable_if<
   return true;
 }
 
+
 template<class Tuple1, class Tuple2>
+TUPLE_UTILITY_ANNOTATION
 typename std::enable_if<
   (std::tuple_size<Tuple1>::value > 0 && std::tuple_size<Tuple2>::value > 0),
   bool
@@ -425,6 +477,7 @@ typename std::enable_if<
 
 
 template<class Function, class Tuple, size_t... I>
+TUPLE_UTILITY_ANNOTATION
 auto __tuple_apply_impl(Function f, Tuple&& t, __index_sequence<I...>)
   -> decltype(
        f(std::get<I>(std::forward<Tuple>(t))...)
@@ -436,6 +489,7 @@ auto __tuple_apply_impl(Function f, Tuple&& t, __index_sequence<I...>)
 
 
 template<class Function, class Tuple>
+TUPLE_UTILITY_ANNOTATION
 auto tuple_apply(Function f, Tuple&& t)
   -> decltype(
        __tuple_apply_impl(
@@ -451,6 +505,7 @@ auto tuple_apply(Function f, Tuple&& t)
 
 
 template<class Function, class... StdTuples>
+TUPLE_UTILITY_ANNOTATION
 auto __tuple_cat_apply_impl(Function f, StdTuples&&... tuples)
   -> decltype(
        tuple_apply(f, std::tuple_cat(std::forward<StdTuples>(tuples)...))
@@ -461,6 +516,7 @@ auto __tuple_cat_apply_impl(Function f, StdTuples&&... tuples)
 
 
 template<class Function, class... Tuples>
+TUPLE_UTILITY_ANNOTATION
 auto tuple_cat_apply(Function f, Tuples&&... tuples)
   -> decltype(
        __tuple_cat_apply_impl(f, tuple_apply(__std_tuple_maker{}, std::forward<Tuples>(tuples))...)
@@ -473,6 +529,7 @@ auto tuple_cat_apply(Function f, Tuples&&... tuples)
 
 
 template<class... Tuples>
+TUPLE_UTILITY_ANNOTATION
 auto tuple_zip(Tuples&&... tuples)
   -> decltype(
        tuple_map(__std_tuple_maker{}, std::forward<Tuples>(tuples)...)
@@ -486,4 +543,9 @@ auto tuple_zip(Tuples&&... tuples)
 } // close namespace
 #endif // TUPLE_UTILITY_NAMESPACE
 
+
+#ifdef TUPLE_UTILITY_ANNOTATION_NEEDS_UNDEF
+#undef TUPLE_UTILITY_ANNOTATION
+#undef TUPLE_UTILITY_ANNOTATION_NEEDS_UNDEF
+#endif
 
