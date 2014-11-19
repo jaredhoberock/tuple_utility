@@ -93,6 +93,23 @@ Utilities for C++ tuples.
       return 0;
     }
 
+`make_from_tuple`:
+
+    #include "tuple_utility.hpp"
+    #include <vector>
+
+    int main()
+    {
+      auto t = std::make_tuple(13, 13);
+
+      auto vector_of_13s = make_from_tuple<std::vector<int>>(t);
+
+      // vector_of_13s is a std::vector<int> containing 13
+      // elements which are all equal to 13
+
+      return 0;
+    }
+
 `tuple_reduce`:
 
     #include "tuple_utility.hpp"
