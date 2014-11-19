@@ -146,3 +146,26 @@ Utilities for C++ tuples.
       return 0;
     }
 
+`std::array`s are tuples too:
+
+    #include "tuple_utility.hpp"
+    #include <array>
+
+    int main()
+    {
+      std::array<int> t = {0, 1, 2, 3};
+    
+      auto negative_t = tuple_map([](int x)
+      {
+        return -x;
+      }, t);
+    
+      std::cout << "negative_t: ";
+      tuple_print(negative_t);
+      std::cout << std::endl;
+
+      // prints 0, -1, -2, -3
+    
+      return 0;
+    }
+
