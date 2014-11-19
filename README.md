@@ -24,6 +24,34 @@ Utilities for C++ tuples.
     
       return 0;
     }
+
+`tuple_map` is variadic:
+
+    #include "tuple_utility.hpp"
+    
+    int main()
+    {
+      auto t = std::make_tuple(0, 1, 2, 3);
+    
+      auto negative_t = tuple_map([](int x)
+      {
+        return -x;
+      }, t);
+    
+      auto zero_t = tuple_map([](int x, int y)
+      {
+        return x + y;
+      }, t, negative_t);
+
+      std::cout << "zero_t: ";
+      tuple_print(zero_t);
+      std::cout << std::endl;
+
+      // prints 0, 0, 0, 0
+    
+      return 0;
+    }
+
    
 `tuple_head` & `tuple_tail`:
 
