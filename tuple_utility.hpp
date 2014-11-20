@@ -404,26 +404,37 @@ T tuple_reduce(Tuple&& t, T init, Function f,
 }
 
 
-template<class Function, class Tuple1, class... Tuples>
-TUPLE_UTILITY_ANNOTATION
-typename std::enable_if<
-  (std::tuple_size<__decay_t<Tuple1>>::value == 0)
->::type
-  tuple_for_each(Function f, Tuple1&& t1, Tuples&&... ts)
+template<size_t I, size_t N>
+struct __tuple_for_each_impl
 {
-  return;
-}
+  template<class Function, class Tuple1, class... Tuples>
+  TUPLE_UTILITY_ANNOTATION
+  static void for_each(Function f, Tuple1&& t1, Tuples&&... ts)
+  {
+    f(std::get<I>(std::forward<Tuple1>(t1)), std::get<I>(std::forward<Tuples>(ts))...);
+
+    return __tuple_for_each_impl<I+1,N>::for_each(f, std::forward<Tuple1>(t1), std::forward<Tuples>(ts)...);
+  }
+};
+
+
+template<size_t I>
+struct __tuple_for_each_impl<I,I>
+{
+  template<class Function, class Tuple1, class... Tuples>
+  TUPLE_UTILITY_ANNOTATION
+  static void for_each(Function f, Tuple1&&, Tuples&&...)
+  {
+    return;
+  }
+};
 
 
 template<class Function, class Tuple1, class... Tuples>
 TUPLE_UTILITY_ANNOTATION
-typename std::enable_if<
-  (std::tuple_size<__decay_t<Tuple1>>::value > 0)
->::type
-  tuple_for_each(Function f, Tuple1&& t1, Tuples&&... ts)
+void tuple_for_each(Function f, Tuple1&& t1, Tuples&&... ts)
 {
-  f(tuple_head(std::forward<Tuple1>(t1)), tuple_head(std::forward<Tuples>(ts))...);
-  return tuple_for_each(f, forward_tuple_tail<Tuple1>(t1), forward_tuple_tail<Tuples>(ts)...);
+  return __tuple_for_each_impl<0,std::tuple_size<__decay_t<Tuple1>>::value>::for_each(f, std::forward<Tuple1>(t1), std::forward<Tuples>(ts)...);
 }
 
 
