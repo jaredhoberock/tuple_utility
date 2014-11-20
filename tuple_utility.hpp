@@ -411,7 +411,7 @@ typename std::enable_if<
 >::type
   tuple_for_each(Function f, Tuple1&& t1, Tuples&&... ts)
 {
-  ;
+  return;
 }
 
 
@@ -423,7 +423,7 @@ typename std::enable_if<
   tuple_for_each(Function f, Tuple1&& t1, Tuples&&... ts)
 {
   f(tuple_head(std::forward<Tuple1>(t1)), tuple_head(std::forward<Tuples>(ts))...);
-  tuple_for_each(f, forward_tuple_tail<Tuple1>(t1), forward_tuple_tail<Tuples>(ts)...);
+  return tuple_for_each(f, forward_tuple_tail<Tuple1>(t1), forward_tuple_tail<Tuples>(ts)...);
 }
 
 
