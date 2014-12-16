@@ -83,14 +83,58 @@ template<size_t N>
 using __make_index_sequence = typename __make_index_sequence_impl<0, __index_sequence<>, N>::type;
 
 
+template<class T>
+struct tuple_traits
+{
+  using tuple_type = T;
+
+  static const size_t size = std::tuple_size<tuple_type>::value; 
+
+  template<size_t i>
+  using element_type = typename std::tuple_element<i,tuple_type>::type;
+
+  template<size_t i>
+  TUPLE_UTILITY_ANNOTATION
+  static element_type<i>& get(tuple_type& t)
+  {
+    return std::get<i>(t);
+  }
+
+  template<size_t i>
+  TUPLE_UTILITY_ANNOTATION
+  static const element_type<i>& get(const tuple_type& t)
+  {
+    return std::get<i>(t);
+  }
+
+  template<size_t i>
+  TUPLE_UTILITY_ANNOTATION
+  static element_type<i>&& get(tuple_type&& t)
+  {
+    return std::get<i>(std::move(t));
+  }
+};
+
+
+template<size_t i, class Tuple>
+TUPLE_UTILITY_ANNOTATION
+auto __get(Tuple&& t)
+  -> decltype(
+       tuple_traits<__decay_t<Tuple>>::template get<i>(std::forward<Tuple>(t))
+     )
+{
+  return tuple_traits<__decay_t<Tuple>>::template get<i>(std::forward<Tuple>(t));
+}
+
+
 template<class Tuple>
 TUPLE_UTILITY_ANNOTATION
 auto tuple_head(Tuple&& t)
   -> decltype(
-       std::get<0>(std::forward<Tuple>(t))
+       __get<0>(std::forward<Tuple>(t))
      )
 {
-  return std::get<0>(std::forward<Tuple>(t));
+  return __get<0>(std::forward<Tuple>(t));
 }
 
 
@@ -108,10 +152,10 @@ template<class Tuple, size_t... I>
 TUPLE_UTILITY_ANNOTATION
 auto __forward_tuple_tail_impl(Tuple&& t, __index_sequence<I...>)
   -> decltype(
-       __forward_tuple_tail_impl_impl(std::get<I+1>(std::forward<Tuple>(t))...)
+       __forward_tuple_tail_impl_impl(__get<I+1>(std::forward<Tuple>(t))...)
      )
 {
-  return __forward_tuple_tail_impl_impl(std::get<I+1>(std::forward<Tuple>(t))...);
+  return __forward_tuple_tail_impl_impl(__get<I+1>(std::forward<Tuple>(t))...);
 }
 
 
@@ -153,10 +197,10 @@ template<class Tuple, size_t... I>
 TUPLE_UTILITY_ANNOTATION
 auto __tuple_tail_impl(Tuple&& t, __index_sequence<I...>)
   -> decltype(
-       __tuple_tail_impl_impl(std::get<I+1>(std::forward<Tuple>(t))...)
+       __tuple_tail_impl_impl(__get<I+1>(std::forward<Tuple>(t))...)
      )
 {
-  return __tuple_tail_impl_impl(std::get<I+1>(std::forward<Tuple>(t))...);
+  return __tuple_tail_impl_impl(__get<I+1>(std::forward<Tuple>(t))...);
 }
 
 
@@ -190,11 +234,11 @@ TUPLE_UTILITY_ANNOTATION
 auto __tuple_take_invoke_impl(Tuple&& t, Function f, __index_sequence<I...>)
   -> decltype(
        f(
-         std::get<I>(std::forward<Tuple>(t))...
+         __get<I>(std::forward<Tuple>(t))...
        )
      )
 {
-  return f(std::get<I>(std::forward<Tuple>(t))...);
+  return f(__get<I>(std::forward<Tuple>(t))...);
 }
 
 
@@ -271,7 +315,7 @@ template<class Tuple>
 TUPLE_UTILITY_ANNOTATION
 auto tuple_last(Tuple&& t)
   -> decltype(
-       std::get<
+       __get<
          std::tuple_size<
            typename std::decay<Tuple>::type
          >::value - 1
@@ -279,7 +323,7 @@ auto tuple_last(Tuple&& t)
      )
 {
   const size_t i = std::tuple_size<typename std::decay<Tuple>::type>::value - 1;
-  return std::get<i>(std::forward<Tuple>(t));
+  return __get<i>(std::forward<Tuple>(t));
 }
 
 
@@ -287,10 +331,10 @@ template<class Tuple, class T, class Function, size_t... I>
 TUPLE_UTILITY_ANNOTATION
 auto __tuple_append_invoke_impl(Tuple&& t, T&& x, Function f, __index_sequence<I...>)
   -> decltype(
-       f(std::get<I>(std::forward<Tuple>(t))..., std::forward<T>(x))
+       f(__get<I>(std::forward<Tuple>(t))..., std::forward<T>(x))
      )
 {
-  return f(std::get<I>(std::forward<Tuple>(t))..., std::forward<T>(x));
+  return f(__get<I>(std::forward<Tuple>(t))..., std::forward<T>(x));
 }
 
 
@@ -333,10 +377,10 @@ template<size_t I, typename Function, typename... Tuples>
 TUPLE_UTILITY_ANNOTATION
 auto __tuple_map_invoke(Function f, Tuples&&... ts)
   -> decltype(
-       f(std::get<I>(std::forward<Tuples>(ts))...)
+       f(__get<I>(std::forward<Tuples>(ts))...)
      )
 {
-  return f(std::get<I>(std::forward<Tuples>(ts))...);
+  return f(__get<I>(std::forward<Tuples>(ts))...);
 }
 
 
@@ -397,7 +441,7 @@ template<class T, class Tuple, size_t... I>
 TUPLE_UTILITY_ANNOTATION
 T make_from_tuple_impl(const Tuple& t, __index_sequence<I...>)
 {
-  return T{std::get<I>(t)...};
+  return T{__get<I>(t)...};
 }
 
 
@@ -445,7 +489,7 @@ struct __tuple_for_each_impl
   TUPLE_UTILITY_ANNOTATION
   static void for_each(Function f, Tuple1&& t1, Tuples&&... ts)
   {
-    f(std::get<I>(std::forward<Tuple1>(t1)), std::get<I>(std::forward<Tuples>(ts))...);
+    f(__get<I>(std::forward<Tuple1>(t1)), __get<I>(std::forward<Tuples>(ts))...);
 
     return __tuple_for_each_impl<I+1,N>::for_each(f, std::forward<Tuple1>(t1), std::forward<Tuples>(ts)...);
   }
@@ -487,7 +531,7 @@ typename std::enable_if<
 >::type
 tuple_print(const Tuple& t, std::ostream& os, const T&)
 {
-  os << std::get<0>(t);
+  os << __get<0>(t);
 }
 
 
@@ -551,10 +595,10 @@ template<class Function, class Tuple, size_t... I>
 TUPLE_UTILITY_ANNOTATION
 auto __tuple_apply_impl(Function f, Tuple&& t, __index_sequence<I...>)
   -> decltype(
-       f(std::get<I>(std::forward<Tuple>(t))...)
+       f(__get<I>(std::forward<Tuple>(t))...)
      )
 {
-  return f(std::get<I>(std::forward<Tuple>(t))...);
+  return f(__get<I>(std::forward<Tuple>(t))...);
 }
 
 
