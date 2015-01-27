@@ -170,6 +170,25 @@ Utilities for C++ tuples.
       return 0;
     }
 
+`tuple_filter`:
+
+    #include "tuple_utility.hpp"
+    #include <type_traits>
+    #include <string>
+
+    int main()
+    {
+      auto t1 = std::make_tuple(13, 3.14159, std::string("hi there"));
+
+      auto t2 = tuple_filter<std::is_arithmetic>(t1);
+
+      tuple_print(t2);
+      std::cout << std::endl;
+      // prints 13, 3.14159
+
+      return 0;
+    }
+
 `tuple_lexicographical_compare`:
 
     #include "tuple_utility.hpp"

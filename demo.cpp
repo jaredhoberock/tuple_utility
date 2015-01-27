@@ -1,5 +1,7 @@
 #include <iostream>
 #include <vector>
+#include <string>
+#include <type_traits>
 #include "tuple_utility.hpp"
 
 int main()
@@ -82,6 +84,13 @@ int main()
   auto t15 = std::make_tuple(0, 1);
   auto t16 = std::make_tuple(2, 3);
   auto t17 = tuple_zip(t15,t16);
+
+  // filter elements of a tuple which are not arithmetic types
+  auto t18 = std::make_tuple(13, 3.14159265359, std::string("not arithmetic"));
+  auto t19 = tuple_filter<std::is_arithmetic>(t18);
+  std::cout << "t19: ";
+  tuple_print(t19);
+  std::cout << std::endl;
 
   return 0;
 }
