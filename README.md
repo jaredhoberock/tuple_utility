@@ -236,6 +236,7 @@ Utilities for C++ tuples.
 As is any type which specializes `tuple_traits`:
 
     #include "tuple_utility.hpp"
+    #include <utility>
     
     struct my_float3
     {
@@ -255,18 +256,21 @@ As is any type which specializes `tuple_traits`:
       template<size_t i>
       static float& get(tuple_type& t)
       {
+        static_assert(i < size, "i must be < size");
         return &t.x + i;
       }
       
       template<size_t i>
       static const float& get(const tuple_type& t)
       {
+        static_assert(i < size, "i must be < size");
         return &t.x + i;
       }
       
       template<size_t i>
       static float&& get(tuple_type&& t)
       {
+        static_assert(i < size, "i must be < size");
         return std::move(&t.x + i);
       }
     };
