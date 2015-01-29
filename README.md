@@ -277,7 +277,7 @@ As is any type which specializes `tuple_traits`:
     
     int main()
     {
-      my_float3 t = {0.f, 1.f, 2.f, 3.f};
+      my_float3 t = {0.f, 1.f, 2.f};
 
       auto negative_t = tuple_map([](float x)
       {
@@ -288,7 +288,7 @@ As is any type which specializes `tuple_traits`:
       tuple_print(negative_t);
       std::cout << std::endl;
 
-      // prints 0, -1, -2, -3
+      // prints 0, -1, -2
 
       return 0;
     }
