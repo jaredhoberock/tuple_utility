@@ -233,3 +233,57 @@ Utilities for C++ tuples.
       return 0;
     }
 
+As are any type which specializes `tuple_traits`:
+
+    #include "tuple_utility.hpp"
+    
+    struct my_float3
+    {
+      float x, y, z;
+    };
+
+    struct tuple_traits<my_float3>
+    {
+      using tuple_type = my_float3;
+      
+      static const size_t size = 3;
+      
+      template<size_t i>
+      using element_type = float;
+      
+      template<size_t i>
+      static float& get(tuple_type& t)
+      {
+        return &t.x + i;
+      }
+      
+      template<size_t i>
+      static const float& get(const tuple_type& t)
+      {
+        return &t.x + i;
+      }
+      
+      template<size_t i>
+      static float&& get(tuple_type&& t)
+      {
+        return std::move(&t.x + i);
+      }
+    };
+    
+    int main()
+    {
+      my_float3 t = {0, 1, 2, 3};
+
+      auto negative_t = tuple_map([](float x)
+      {
+        return -x;
+      }, t);
+
+      std::cout << "negative_t: ";
+      tuple_print(negative_t);
+      std::cout << std::endl;
+
+      // prints 0, -1, -2, -3
+
+      return 0;
+    }
