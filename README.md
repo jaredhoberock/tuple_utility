@@ -233,7 +233,7 @@ Utilities for C++ tuples.
       return 0;
     }
 
-As are any type which specializes `tuple_traits`:
+As is any type which specializes `tuple_traits`:
 
     #include "tuple_utility.hpp"
     
