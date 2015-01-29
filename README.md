@@ -242,6 +242,7 @@ As is any type which specializes `tuple_traits`:
       float x, y, z;
     };
 
+    template<>
     struct tuple_traits<my_float3>
     {
       using tuple_type = my_float3;
