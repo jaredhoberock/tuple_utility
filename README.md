@@ -277,7 +277,7 @@ As is any type which specializes `tuple_traits`:
     
     int main()
     {
-      my_float3 t = {0, 1, 2, 3};
+      my_float3 t = {0.f, 1.f, 2.f, 3.f};
 
       auto negative_t = tuple_map([](float x)
       {
