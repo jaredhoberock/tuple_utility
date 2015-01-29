@@ -25,7 +25,7 @@ Utilities for C++ tuples.
       return 0;
     }
     
-    `std::array`s are tuples too:
+`std::array`s are tuples too:
 
     #include "tuple_utility.hpp"
     #include <array>
