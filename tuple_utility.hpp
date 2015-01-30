@@ -503,7 +503,7 @@ void __tuple_for_each_n_impl(__index_sequence<I...>, Function f, Tuple1&& t1, Tu
   // XXX swallow g to WAR nvcc 7.0 unused variable warning
   __swallow(g);
 
-  __swallow(g(std::get<I>(std::forward<Tuple1>(t1), std::forward<Tuples>(ts)...))...);
+  __swallow(g(__get<I>(std::forward<Tuple1>(t1), std::forward<Tuples>(ts)...))...);
 }
 
 
