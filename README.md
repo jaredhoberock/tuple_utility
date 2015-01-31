@@ -199,7 +199,26 @@ As is any type which specializes `tuple_traits`:
       tuple_print(t_append_4);
       std::cout << std::endl;
 
-      // prints 1, 2, 3, 4
+      // prints 0, 1, 2, 3, 4
+
+      return 0;
+    }
+
+`tuple_prepend`:
+
+    #include "tuple_utility.hpp"
+
+    int main()
+    {
+      auto t = std::make_tuple(0, 1, 2, 3);
+
+      auto t_prepend_neg_1 = tuple_prepend(t, -1);
+
+      std::cout << "t_prepend_neg_1 is ";
+      tuple_print(t_prepend_neg_1);
+      std::cout << std::endl;
+
+      // prints -1, 0, 1, 2, 3
 
       return 0;
     }

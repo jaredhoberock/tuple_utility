@@ -92,6 +92,13 @@ int main()
   tuple_print(t19);
   std::cout << std::endl;
 
+  // prepend to a tuple
+  auto t20 = tuple_prepend(empty, 7);
+
+  std::cout << "t20: ";
+  tuple_print(t20);
+  std::cout << std::endl;
+
   return 0;
 }
 

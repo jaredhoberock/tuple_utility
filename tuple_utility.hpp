@@ -382,6 +382,40 @@ auto tuple_append_invoke(Tuple&& t, T&& x, Function f)
 }
 
 
+template<class Tuple, class T, class Function, size_t... I>
+TUPLE_UTILITY_ANNOTATION
+auto __tuple_prepend_invoke_impl(Tuple&& t, T&& x, Function f, __index_sequence<I...>)
+  -> decltype(
+       f(std::forward<T>(x), __get<I>(std::forward<Tuple>(t))...)
+     )
+{
+  return f(std::forward<T>(x), __get<I>(std::forward<Tuple>(t))...);
+}
+
+
+template<class Tuple, class T, class Function>
+TUPLE_UTILITY_ANNOTATION
+auto tuple_prepend_invoke(Tuple&& t, T&& x, Function f)
+  -> decltype(
+       __tuple_prepend_invoke_impl(
+         std::forward<Tuple>(t),
+         std::forward<T>(x),
+         f,
+         __make_index_sequence<
+           std::tuple_size<
+             typename std::decay<Tuple>::type
+           >::value
+         >()
+       )
+     )
+{
+  using indices = __make_index_sequence<
+    std::tuple_size<typename std::decay<Tuple>::type>::value
+  >;
+  return __tuple_prepend_invoke_impl(std::forward<Tuple>(t), std::forward<T>(x), f, indices());
+}
+
+
 template<class Tuple, class T>
 TUPLE_UTILITY_ANNOTATION
 auto tuple_append(Tuple&& t, T&& x)
@@ -390,6 +424,17 @@ auto tuple_append(Tuple&& t, T&& x)
      )
 {
   return tuple_append_invoke(std::forward<Tuple>(t), std::forward<T>(x), __std_tuple_maker());
+}
+
+
+template<class Tuple, class T>
+TUPLE_UTILITY_ANNOTATION
+auto tuple_prepend(Tuple&& t, T&& x)
+  -> decltype(
+       tuple_prepend_invoke(std::forward<Tuple>(t), std::forward<T>(x), __std_tuple_maker())
+     )
+{
+  return tuple_prepend_invoke(std::forward<Tuple>(t), std::forward<T>(x), __std_tuple_maker());
 }
 
 
@@ -494,16 +539,35 @@ TUPLE_UTILITY_ANNOTATION
 void __swallow(Args&&...){}
 
 
-template<size_t... I, class Function, class Tuple1, class... Tuples>
+template<size_t I, class Function, class... Tuples>
 TUPLE_UTILITY_ANNOTATION
-void __tuple_for_each_n_impl(__index_sequence<I...>, Function f, Tuple1&& t1, Tuples&&... ts)
+int __apply_row(Function f, Tuples&&... ts)
+{
+  f(__get<I>(std::forward<Tuples>(ts))...);
+  return 0;
+}
+
+
+template<size_t... I, class Function, class... Tuples>
+TUPLE_UTILITY_ANNOTATION
+void __tuple_for_each_n_impl(__index_sequence<I...>, Function f, Tuples&&... ts)
 {
   auto g = __tuple_for_each_functor<Function>{f};
 
   // XXX swallow g to WAR nvcc 7.0 unused variable warning
   __swallow(g);
 
-  __swallow(g(__get<I>(std::forward<Tuple1>(t1), std::forward<Tuples>(ts)...))...);
+  // we want to write this expression, but can't do it directly with ellipsis operator
+  //  __swallow(
+  //    g(__get<0>(t0), __get<0>(t1), __get<0>(t2), ...),
+  //    g(__get<1>(t0), __get<1>(t1), __get<1>(t2), ...),
+  //    g(__get<2>(t0), __get<2>(t1), __get<2>(t2), ...),
+  //    ...
+  //  );
+
+  __swallow(
+    __apply_row<I>(g, std::forward<Tuples>(ts)...)...
+  );
 }
 
 
