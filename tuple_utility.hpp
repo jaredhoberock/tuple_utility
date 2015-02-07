@@ -46,6 +46,10 @@
 #ifdef TUPLE_UTILITY_NAMESPACE
 namespace TUPLE_UTILITY_NAMESPACE
 {
+#  else 
+   // define TUPLE_UTILITY_NAMESPACE to be the empty string
+#  define TUPLE_UTILITY_NAMESPACE
+#  define TUPLE_UTILITY_NAMESPACE_NEEDS_UNDEF
 #endif // TUPLE_UTILITY_NAMESPACE
 
 
@@ -325,10 +329,10 @@ template<class Tuple>
 TUPLE_UTILITY_ANNOTATION
 auto tuple_drop_last(Tuple&& t)
   -> decltype(
-       tuple_drop<1>(std::forward<Tuple>(t))
+       TUPLE_UTILITY_NAMESPACE::tuple_drop<1>(std::forward<Tuple>(t))
      )
 {
-  return tuple_drop<1>(std::forward<Tuple>(t));
+  return TUPLE_UTILITY_NAMESPACE::tuple_drop<1>(std::forward<Tuple>(t));
 }
 
 
@@ -994,13 +998,19 @@ auto tuple_filter(Tuple&& t)
 }
 
 
-#ifdef TUPLE_UTILITY_NAMESPACE
+#ifndef TUPLE_UTILITY_NAMESPACE_NEEDS_UNDEF
+// if the user defined TUPLE_UTILITY_NAMESPACE, then we need to close the namespace
 } // close namespace
-#endif // TUPLE_UTILITY_NAMESPACE
+#endif // TUPLE_UTILITY_NAMESPACE_NEEDS_UNDER
 
 
 #ifdef TUPLE_UTILITY_ANNOTATION_NEEDS_UNDEF
 #undef TUPLE_UTILITY_ANNOTATION
 #undef TUPLE_UTILITY_ANNOTATION_NEEDS_UNDEF
+#endif
+
+#ifdef TUPLE_UTILITY_NAMESPACE_NEEDS_UNDEF
+#undef TUPLE_UTILITY_NAMESPACE
+#undef TUPLE_UTILITY_NAMESPACE_NEEDS_UNDEF
 #endif
 
