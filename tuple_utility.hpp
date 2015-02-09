@@ -511,7 +511,8 @@ template<class T, class Tuple, size_t... I>
 TUPLE_UTILITY_ANNOTATION
 T make_from_tuple_impl(const Tuple& t, __index_sequence<I...>)
 {
-  return T{__get<I>(t)...};
+  // use constructor syntax
+  return T(__get<I>(t)...);
 }
 
 
