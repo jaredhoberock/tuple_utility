@@ -42,7 +42,7 @@ int main()
   tuple_print(six_t_first_two);
   std::cout << std::endl;
 
-  // drop the last 2 elements of t:
+  // drop the first 2 elements of t:
   auto t_drop_2 = tuple_drop<2>(t);
 
   std::cout << "t_drop_2: ";
