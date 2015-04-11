@@ -311,3 +311,19 @@ As is any type which specializes `tuple_traits`:
 
       return 0;
     }
+
+`tuple_repeat`:
+
+    #include "tuple_utility.hpp"
+
+    int main()
+    {
+      auto t1 = tuple_repeat<3>(13.0);
+
+      tuple_print(t1);
+      std::cout << std::endl;
+      // prints 13, 13, 13
+
+      return 0;
+    }
+

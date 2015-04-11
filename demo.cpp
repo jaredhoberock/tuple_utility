@@ -99,6 +99,12 @@ int main()
   tuple_print(t20);
   std::cout << std::endl;
 
+  // repeat a value a constant number of times
+  auto t21 = tuple_repeat<3>(13.0);
+  std::cout << "t21: ";
+  tuple_print(t21);
+  std::cout << std::endl;
+
   return 0;
 }
 
