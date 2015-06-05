@@ -105,6 +105,14 @@ int main()
   tuple_print(t21);
   std::cout << std::endl;
 
+  // gather elements from a tuple
+  auto t22 = std::make_tuple('a', 'b', 'c', 'd', 'e');
+  auto t23 = tuple_gather<0,2,4>(t22);
+
+  std::cout << "t23: ";
+  tuple_print(t23);
+  std::cout << std::endl;
+
   return 0;
 }
 

@@ -327,3 +327,19 @@ As is any type which specializes `tuple_traits`:
       return 0;
     }
 
+`tuple_gather`:
+
+    #include "tuple_utility.hpp"
+
+    int main()
+    {
+      auto t1 = std::make_tuple('a', 'b', 'c', 'd', 'e');
+      auto t2 = tuple_gather<0,2,4>(t1);
+
+      tuple_print(t2);
+      std::cout << std::endl;
+      // prints a, c, e
+
+      return 0;
+    }
+
