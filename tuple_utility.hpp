@@ -594,6 +594,8 @@ int __apply_row(Function f, Tuples&&... ts)
 }
 
 
+// note that because this implementation relies on the order of parameters passed to __swallow(),
+// the order of invocations of f() is unspecified
 template<size_t... I, class Function, class... Tuples>
 TUPLE_UTILITY_ANNOTATION
 void __tuple_for_each_n_impl(__index_sequence<I...>, Function f, Tuples&&... ts)
@@ -617,6 +619,7 @@ void __tuple_for_each_n_impl(__index_sequence<I...>, Function f, Tuples&&... ts)
 }
 
 
+// invocations of f are in unspecified order
 template<size_t N, class Function, class Tuple1, class... Tuples>
 TUPLE_UTILITY_ANNOTATION
 void tuple_for_each_n(Function f, Tuple1&& t1, Tuples&&... ts)
@@ -625,11 +628,47 @@ void tuple_for_each_n(Function f, Tuple1&& t1, Tuples&&... ts)
 }
 
 
+// invocations of f are in unspecified order
 template<class Function, class Tuple1, class... Tuples>
 TUPLE_UTILITY_ANNOTATION
 void tuple_for_each(Function f, Tuple1&& t1, Tuples&&... ts)
 {
   tuple_for_each_n<std::tuple_size<__decay_t<Tuple1>>::value>(f, std::forward<Tuple1>(t1), std::forward<Tuples>(ts)...);
+}
+
+
+template<class Function, class Tuple1, class... Tuples>
+TUPLE_UTILITY_ANNOTATION
+void __tuple_for_each_in_order_impl(__index_sequence<>, Function f, Tuple1&&, Tuples&&...)
+{
+}
+
+
+template<size_t I, size_t... Indices, class Function, class Tuple1, class... Tuples>
+TUPLE_UTILITY_ANNOTATION
+void __tuple_for_each_in_order_impl(__index_sequence<I,Indices...>, Function f, Tuple1&& t1, Tuples&&... ts)
+{
+  f(__get<I>(std::forward<Tuple1>(t1), __get<I>(std::forward<Tuples>(ts))...));
+
+  __tuple_for_each_in_order_impl(__index_sequence<Indices...>(), f, std::forward<Tuple1>(t1), std::forward<Tuples>(ts)...);
+}
+
+
+// invocations are f() are in the order of tuple elements
+template<size_t N, class Function, class Tuple1, class... Tuples>
+TUPLE_UTILITY_ANNOTATION
+void tuple_for_each_n_in_order(Function f, Tuple1&& t1, Tuples&&... ts)
+{
+  __tuple_for_each_in_order_impl(__make_index_sequence<N>(), f, std::forward<Tuple1>(t1), std::forward<Tuples>(ts)...);
+}
+
+
+// invocations are f() are in the order of tuple elements
+template<class Function, class Tuple1, class... Tuples>
+TUPLE_UTILITY_ANNOTATION
+void tuple_for_each_in_order(Function f, Tuple1&& t1, Tuples&&... ts)
+{
+  tuple_for_each_n_in_order<std::tuple_size<__decay_t<Tuple1>>::value>(f, std::forward<Tuple1>(t1), std::forward<Tuples>(ts)...);
 }
 
 
@@ -685,7 +724,7 @@ typename std::enable_if<
   static const int n_ = std::tuple_size<__decay_t<Tuple>>::value - 1;
   static const int n  = n_ < 0 ? 0 : n_;
 
-  tuple_for_each_n<n>(__print_element_and_delimiter<T>{os,delimiter}, t);
+  tuple_for_each_n_in_order<n>(__print_element_and_delimiter<T>{os,delimiter}, t);
 
   // finally print the last element sans delimiter
   os << tuple_last(t);
