@@ -84,6 +84,7 @@ int main()
   auto t15 = std::make_tuple(0, 1);
   auto t16 = std::make_tuple(2, 3);
   auto t17 = tuple_zip(t15,t16);
+  static_cast<void>(t17);
 
   // filter elements of a tuple which are not arithmetic types
   auto t18 = std::make_tuple(13, 3.14159265359, std::string("not arithmetic"));
